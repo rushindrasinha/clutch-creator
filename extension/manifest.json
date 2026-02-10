@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Clutch Creator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Turn any webpage into a content idea. One click. Three insights.",
-  "permissions": ["activeTab", "sidePanel", "storage", "scripting"],
+  "permissions": ["activeTab", "sidePanel", "storage", "scripting", "tabs"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_icon": {
@@ -26,6 +26,15 @@
       "css": ["content.css"]
     }
   ],
+  "commands": {
+    "analyze-page": {
+      "suggested_key": {
+        "default": "Alt+Shift+C",
+        "mac": "Alt+Shift+C"
+      },
+      "description": "Analyze current page for content ideas"
+    }
+  },
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
