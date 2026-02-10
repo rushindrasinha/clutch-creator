@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clutch Creator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #0a0a0b;
+      color: #e4e4e7;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .logo-icon svg { width: 18px; height: 18px; }
+
+    .logo-text {
+      font-size: 16px; font-weight: 700;
+      letter-spacing: -0.3px; color: #fff;
+    }
+
+    .analyze-btn {
+      width: 100%; padding: 12px 16px;
+      background: linear-gradient(135deg, #6366f1, #7c3aed);
+      color: #fff; border: none; border-radius: 12px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .analyze-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .analyze-btn:active { transform: translateY(0); }
+    .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .page-info {
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .page-title {
+      font-size: 11px; color: #71717a;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      font-weight: 600; margin-bottom: 4px;
+    }
+
+    .page-url {
+      font-size: 13px; color: #a1a1aa;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* States */
+    .state { display: none; padding: 20px; }
+    .state.active { display: block; }
+
+    /* Setup state */
+    .setup-state { padding: 40px 20px; }
+
+    .setup-title {
+      font-size: 18px; font-weight: 700; color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .setup-desc {
+      font-size: 13px; color: #71717a;
+      line-height: 1.6; margin-bottom: 24px;
+    }
+
+    .setup-label {
+      font-size: 12px; font-weight: 600; color: #a1a1aa;
+      margin-bottom: 8px; display: block;
+    }
+
+    .setup-input {
+      width: 100%; padding: 10px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; color: #e4e4e7;
+      font-size: 13px; font-family: 'SF Mono', 'Fira Code', monospace;
+      outline: none; margin-bottom: 16px;
+    }
+
+    .setup-input:focus { border-color: rgba(99,102,241,0.4); }
+    .setup-input::placeholder { color: #3f3f46; }
+
+    .setup-save-btn {
+      width: 100%; padding: 12px;
+      background: linear-gradient(135deg, #6366f1, #7c3aed);
+      color: #fff; border: none; border-radius: 12px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    .setup-link {
+      font-size: 12px; color: #6366f1;
+      text-decoration: none; display: block; text-align: center;
+    }
+
+    .setup-link:hover { text-decoration: underline; }
+
+    .setup-note {
+      font-size: 11px; color: #3f3f46;
+      text-align: center; margin-top: 16px; line-height: 1.5;
+    }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.4; }
+    .empty-text { font-size: 14px; color: #71717a; line-height: 1.6; }
+
+    /* Loading */
+    .loading-state { text-align: center; padding: 60px 20px; }
+
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(99,102,241,0.2);
+      border-top: 3px solid #6366f1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text { font-size: 13px; color: #71717a; }
+
+    /* Results */
+    .results-state { padding: 16px 20px; }
+
+    .insight-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px; padding: 18px;
+      margin-bottom: 14px;
+      transition: border-color 0.2s ease;
+    }
+
+    .insight-card:hover { border-color: rgba(99,102,241,0.2); }
+
+    .insight-label {
+      font-size: 11px; text-transform: uppercase;
+      letter-spacing: 0.8px; font-weight: 700;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    .insight-label .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+    }
+
+    .card-angle .insight-label { color: #818cf8; }
+    .card-angle .dot { background: #818cf8; }
+    .card-hook .insight-label { color: #f472b6; }
+    .card-hook .dot { background: #f472b6; }
+    .card-why .insight-label { color: #34d399; }
+    .card-why .dot { background: #34d399; }
+
+    .insight-text {
+      font-size: 14px; line-height: 1.65; color: #d4d4d8;
+    }
+
+    .card-hook .insight-text {
+      font-size: 15px; font-weight: 500;
+      color: #f4f4f5; font-style: italic;
+    }
+
+    .copy-btn {
+      margin-top: 10px; padding: 6px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #a1a1aa; border-radius: 8px;
+      font-size: 11px; cursor: pointer;
+      transition: all 0.15s ease; font-weight: 500;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.08); color: #e4e4e7;
+    }
+
+    /* Error */
+    .error-state { text-align: center; padding: 40px 20px; }
+    .error-text { font-size: 13px; color: #f87171; margin-bottom: 16px; line-height: 1.5; }
+
+    .retry-btn {
+      padding: 8px 20px;
+      background: rgba(248,113,113,0.1);
+      border: 1px solid rgba(248,113,113,0.2);
+      color: #f87171; border-radius: 8px;
+      font-size: 13px; cursor: pointer; font-weight: 500;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 12px 20px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #0a0a0b;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .footer-text { font-size: 11px; color: #3f3f46; }
+
+    .footer-reset {
+      font-size: 11px; color: #52525b;
+      background: none; border: none; cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .footer-reset:hover { color: #71717a; }
+
+    .content-spacer { height: 60px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <span class="logo-text">Clutch Creator</span>
+    </div>
+    <button class="analyze-btn" id="analyzeBtn">Analyze This Page</button>
+  </div>
+
+  <div class="page-info" id="pageInfo" style="display: none;">
+    <div class="page-title">Currently viewing</div>
+    <div class="page-url" id="pageUrl"></div>
+  </div>
+
+  <!-- Setup State -->
+  <div class="state active" id="setupState">
+    <div class="setup-state">
+      <div class="setup-title">Welcome to Clutch Creator</div>
+      <div class="setup-desc">
+        Turn any webpage into content ideas with one click.
+        To get started, add your Anthropic API key below.
+      </div>
+      <label class="setup-label">Anthropic API Key</label>
+      <input type="password" class="setup-input" id="apiKeyInput" placeholder="sk-ant-api03-...">
+      <button class="setup-save-btn" id="saveKeyBtn">Save and Get Started</button>
+      <a class="setup-link" href="https://console.anthropic.com/settings/keys" target="_blank">
+        Get your API key from console.anthropic.com
+      </a>
+      <div class="setup-note">
+        Your key is stored locally on your device and only used to call Anthropic's API directly. It is never sent anywhere else.
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="state" id="emptyState">
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-text">Navigate to any page and hit<br><strong>Analyze This Page</strong><br>to find content ideas.</div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="state" id="loadingState">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <div class="loading-text">Reading this page through a creator lens...</div>
+    </div>
+  </div>
+
+  <!-- Results State -->
+  <div class="state" id="resultsState">
+    <div class="results-state">
+      <div class="insight-card card-angle">
+        <div class="insight-label"><span class="dot"></span> CONTENT ANGLE</div>
+        <div class="insight-text" id="resultAngle"></div>
+        <button class="copy-btn" data-target="resultAngle">Copy</button>
+      </div>
+      <div class="insight-card card-hook">
+        <div class="insight-label"><span class="dot"></span> HOOK</div>
+        <div class="insight-text" id="resultHook"></div>
+        <button class="copy-btn" data-target="resultHook">Copy</button>
+      </div>
+      <div class="insight-card card-why">
+        <div class="insight-label"><span class="dot"></span> WHY IT WORKS</div>
+        <div class="insight-text" id="resultWhy"></div>
+        <button class="copy-btn" data-target="resultWhy">Copy</button>
+      </div>
+    </div>
+    <div class="content-spacer"></div>
+  </div>
+
+  <!-- Error State -->
+  <div class="state" id="errorState">
+    <div class="error-state">
+      <div class="error-text" id="errorText">Something went wrong.</div>
+      <button class="retry-btn" id="retryBtn">Try Again</button>
+    </div>
+  </div>
+
+  <!-- Footer (shown after setup) -->
+  <div class="footer" id="footer" style="display: none;">
+    <span class="footer-text">Powered by Claude</span>
+    <button class="footer-reset" id="resetKeyBtn">Change API Key</button>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
